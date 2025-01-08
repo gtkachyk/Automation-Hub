@@ -9,9 +9,12 @@ A lightweight shell script launcher.
   - [Executing Chains](#executing-chains)
 - [SETTINGS](#settings)
   - [File Display](#file-display)
+- [RUNNING FROM SOURCE CODE](#running-from-source-code)
 
 # Installation
-Coming soon...
+1. [Download the latest release.](https://github.com/gtkachyk/Automation-Hub/releases/download/v0.1.0/Automation-Hub.zip)
+2. Extract the Automation-Hub folder. The location does not matter.
+3. The application can be launched by running Automation-Hub/automation_hub.exe.
 
 # Usage
 ## Adding Shell Programs
@@ -55,3 +58,18 @@ To open the settings window, open the File menu and select Settings. After makin
 
 ## File Display
 Changing this setting allows you to control how files are displayed in the user interface. This does not affect how your data is stored.
+
+# Running from Source Code
+1. Create a folder for the source code:
+```
+mkdir Automation-Hub
+```
+2. Clone the repository with:
+```
+cd Automation-Hub
+git clone git@github.com:gtkachyk/Automation-Hub.git
+```
+3. Run main.py:
+```
+python main.py
+```

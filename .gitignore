@@ -1,3 +1,6 @@
 Temp
 __pycache__
 notes.md
+dist
+build
+main.spec
