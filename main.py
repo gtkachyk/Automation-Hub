@@ -140,7 +140,7 @@ def main_window_handle_outside_click(event):
 
 # Main application window
 root = tk.Tk()
-root.iconbitmap(default="Resources/icon.ico")
+root.iconbitmap(default="Resources/icon_window.ico")
 root.title("Automation-Hub")
 root.geometry("600x400")
 root.resizable(False, False)
