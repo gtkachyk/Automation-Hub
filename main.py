@@ -3,6 +3,7 @@ from tkinter import Menu, messagebox, ttk
 import csv
 import os
 import subprocess
+import threading
 from settings_window import SettingsWindow
 from shells_window import ShellsWindow
 from edit_chain_window import EditChainWindow
@@ -100,12 +101,22 @@ def execute_chain():
                 messagebox.showerror("Error", f"Script not found: {script}")
                 return
 
-            command = f"{shell} {script}"
+            # Ensure the script runs in its directory
+            script_dir = os.path.dirname(script)
+            command = [shell, script]
+
             try:
-                subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
-                # TODO: add option to redirect stdout to UI
-            except subprocess.CalledProcessError as e:
-                messagebox.showerror("Error", f"Error executing '{script}': {e.stderr}")
+                # Launch process in a detached mode
+                subprocess.Popen(
+                    command,
+                    cwd=script_dir,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    stdin=subprocess.DEVNULL,
+                    start_new_session=True,
+                )
+            except Exception as e:
+                messagebox.showerror("Error", f"Error executing '{script}': {e}")
                 return
 
         messagebox.showinfo("Success", f"Chain '{chain_name}' executed successfully.")
