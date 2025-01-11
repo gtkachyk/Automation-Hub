@@ -4,13 +4,36 @@ import os
 import subprocess
 
 # Constants
-SETTINGS_DIR = "Settings"
-FILE_DISPLAY_FILE = SETTINGS_DIR + "/file_display.csv"
-SHELLS_FILE = "Shells/shells.csv"
-DETECTED_IDENTITIES_FILE = "Shells/detected_identities.csv"
 CHAINS_DIR = "Chains"
+RESOURCES_DIR = "Resources"
+ICON_TASKBAR_FILE = "Resources/icon_taskbar.ico"
+ICON_WINDOW_FILE = "Resources/icon_window.ico"
+SETTINGS_DIR = "Settings"
+FILE_DISPLAY_FILE = "Settings/file_display.csv"
+SHELLS_DIR = "Shells"
+DETECTED_IDENTITIES_FILE = "Shells/detected_identities.csv"
+SHELLS_FILE = "Shells/shells.csv"
 LISTBOX_ITEM_HEIGHT = 16
 
+def setup_application_files():
+    confirm_dir_existence(CHAINS_DIR)
+    confirm_dir_existence(RESOURCES_DIR)
+    confirm_file_existence(ICON_TASKBAR_FILE)
+    confirm_file_existence(ICON_WINDOW_FILE)
+    confirm_dir_existence(SETTINGS_DIR)
+    confirm_file_existence(FILE_DISPLAY_FILE)
+    confirm_dir_existence(SHELLS_DIR)
+    confirm_file_existence(DETECTED_IDENTITIES_FILE)
+    confirm_file_existence(SHELLS_FILE)
+
+def confirm_dir_existence(dir):
+    os.makedirs(dir, exist_ok=True)
+
+def confirm_file_existence(file):
+    if not os.path.exists(file):
+        with open(file, "w") as f:
+            pass
+    
 def get_detected_identity(shell):
     shell = shell + "\n"
     shell_line = 0

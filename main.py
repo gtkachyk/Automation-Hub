@@ -6,14 +6,7 @@ import subprocess
 from settings_window import SettingsWindow
 from shells_window import ShellsWindow
 from edit_chain_window import EditChainWindow
-from utils import FILE_DISPLAY_FILE, SHELLS_FILE, DETECTED_IDENTITIES_FILE, CHAINS_DIR, listbox_clicked_dead_space, get_detected_identity
-
-# Ensure directories and files exist
-os.makedirs("Shells", exist_ok=True)
-os.makedirs(CHAINS_DIR, exist_ok=True)
-if not os.path.exists(SHELLS_FILE):
-    with open(SHELLS_FILE, "w") as f:
-        pass
+from utils import FILE_DISPLAY_FILE, SHELLS_FILE, DETECTED_IDENTITIES_FILE, CHAINS_DIR, listbox_clicked_dead_space, get_detected_identity, setup_application_files
 
 def open_settings_window():
     SettingsWindow(root, FILE_DISPLAY_FILE)
@@ -146,62 +139,65 @@ def main_window_handle_outside_click(event):
     if widget != chain_listbox and widget != edit_button and widget != delete_button and widget != execute_button:
         main_window_deselect_link()
 
-# Main application window
-root = tk.Tk()
-root.iconbitmap(default="Resources/icon_window.ico")
-root.title("Automation-Hub")
-root.geometry("600x400")
-root.resizable(False, False)
-root.bind("<Button-1>", main_window_handle_outside_click)
+if __name__ == "__main__":
+    setup_application_files()
 
-# Create the menu bar
-menu_bar = Menu(root)
-root.config(menu=menu_bar)
-
-# File menu
-file_menu = Menu(menu_bar, tearoff=0)
-file_menu.add_command(label="Settings", command=open_settings_window)
-file_menu.add_separator()
-file_menu.add_command(label="Shells", command=open_shells_window)
-file_menu.add_separator()
-file_menu.add_command(label="Quit", command=quit_program)
-menu_bar.add_cascade(label="File", menu=file_menu)
-
-# Main window components
-frame = tk.Frame(root)
-frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
-
-# Main listbox label
-ttk.Label(frame, text="Execution Chains", width=15).pack(side=tk.TOP)
-
-# Listbox for displaying execution chains
-chain_listbox = tk.Listbox(frame, activestyle=tk.NONE, exportselection=False)
-chain_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-# Scrollbar for the listbox
-scrollbar = tk.Scrollbar(frame, orient=tk.VERTICAL, command=chain_listbox.yview)
-scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-chain_listbox.config(yscrollcommand=scrollbar.set)
-
-# Button panel
-button_frame = tk.Frame(root)
-button_frame.pack(pady=10)
-add_button = tk.Button(button_frame, text="Add", command=lambda: open_edit_chain_window())
-add_button.pack(side=tk.LEFT, padx=5)
-edit_button = tk.Button(button_frame, text="Edit", command=lambda: open_edit_chain_window(chain_listbox.get(chain_listbox.curselection()[0])) if chain_listbox.curselection() else None, state=tk.DISABLED)
-edit_button.pack(side=tk.LEFT, padx=5)
-delete_button = tk.Button(button_frame, text="Delete", command=delete_selected_chains, state=tk.DISABLED)
-delete_button.pack(side=tk.LEFT, padx=5)
-execute_button = tk.Button(button_frame, text="Execute", command=execute_chain, state=tk.DISABLED)
-execute_button.pack(side=tk.LEFT, padx=5)
-
-# Display chains
-load_chains()
-
-# Initially disable Edit, Delete, and Execute buttons
-edit_button.config(state=tk.DISABLED)
-delete_button.config(state=tk.DISABLED)
-execute_button.config(state=tk.DISABLED)
-
-# Run the application
-root.mainloop()
+    # Main application window
+    root = tk.Tk()
+    root.iconbitmap(default="Resources/icon_window.ico")
+    root.title("Automation-Hub")
+    root.geometry("600x400")
+    root.resizable(False, False)
+    root.bind("<Button-1>", main_window_handle_outside_click)
+    
+    # Create the menu bar
+    menu_bar = Menu(root)
+    root.config(menu=menu_bar)
+    
+    # File menu
+    file_menu = Menu(menu_bar, tearoff=0)
+    file_menu.add_command(label="Settings", command=open_settings_window)
+    file_menu.add_separator()
+    file_menu.add_command(label="Shells", command=open_shells_window)
+    file_menu.add_separator()
+    file_menu.add_command(label="Quit", command=quit_program)
+    menu_bar.add_cascade(label="File", menu=file_menu)
+    
+    # Main window components
+    frame = tk.Frame(root)
+    frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+    
+    # Main listbox label
+    ttk.Label(frame, text="Execution Chains", width=15).pack(side=tk.TOP)
+    
+    # Listbox for displaying execution chains
+    chain_listbox = tk.Listbox(frame, activestyle=tk.NONE, exportselection=False)
+    chain_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    
+    # Scrollbar for the listbox
+    scrollbar = tk.Scrollbar(frame, orient=tk.VERTICAL, command=chain_listbox.yview)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+    chain_listbox.config(yscrollcommand=scrollbar.set)
+    
+    # Button panel
+    button_frame = tk.Frame(root)
+    button_frame.pack(pady=10)
+    add_button = tk.Button(button_frame, text="Add", command=lambda: open_edit_chain_window())
+    add_button.pack(side=tk.LEFT, padx=5)
+    edit_button = tk.Button(button_frame, text="Edit", command=lambda: open_edit_chain_window(chain_listbox.get(chain_listbox.curselection()[0])) if chain_listbox.curselection() else None, state=tk.DISABLED)
+    edit_button.pack(side=tk.LEFT, padx=5)
+    delete_button = tk.Button(button_frame, text="Delete", command=delete_selected_chains, state=tk.DISABLED)
+    delete_button.pack(side=tk.LEFT, padx=5)
+    execute_button = tk.Button(button_frame, text="Execute", command=execute_chain, state=tk.DISABLED)
+    execute_button.pack(side=tk.LEFT, padx=5)
+    
+    # Display chains
+    load_chains()
+    
+    # Initially disable Edit, Delete, and Execute buttons
+    edit_button.config(state=tk.DISABLED)
+    delete_button.config(state=tk.DISABLED)
+    execute_button.config(state=tk.DISABLED)
+    
+    # Run the application
+    root.mainloop()
