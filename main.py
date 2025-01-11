@@ -3,18 +3,10 @@ from tkinter import Menu, messagebox, ttk
 import csv
 import os
 import subprocess
-import threading
 from settings_window import SettingsWindow
 from shells_window import ShellsWindow
 from edit_chain_window import EditChainWindow
-from utils import listbox_clicked_dead_space
-
-# Constants
-SETTINGS_DIR = "Settings"
-FILE_DISPLAY_FILE = SETTINGS_DIR + "/file_display.csv"
-SHELLS_FILE = "Shells/shells.csv"
-CHAINS_DIR = "Chains"
-LISTBOX_ITEM_HEIGHT = 16
+from utils import FILE_DISPLAY_FILE, SHELLS_FILE, DETECTED_IDENTITIES_FILE, CHAINS_DIR, listbox_clicked_dead_space, get_detected_identity
 
 # Ensure directories and files exist
 os.makedirs("Shells", exist_ok=True)
@@ -27,7 +19,7 @@ def open_settings_window():
     SettingsWindow(root, FILE_DISPLAY_FILE)
 
 def open_shells_window():
-    ShellsWindow(root, SHELLS_FILE, FILE_DISPLAY_FILE, CHAINS_DIR)
+    ShellsWindow(root, SHELLS_FILE, DETECTED_IDENTITIES_FILE, FILE_DISPLAY_FILE, CHAINS_DIR)
 
 def open_edit_chain_window(chain_name=None):
     EditChainWindow(
@@ -103,7 +95,12 @@ def execute_chain():
 
             # Ensure the script runs in its directory
             script_dir = os.path.dirname(script)
-            command = [shell, script]
+
+            # Build command based on the detected shell identity
+            command = [shell]
+            if get_detected_identity(shell) == "Command Prompt": 
+                command.append('/C')
+            command.append(script)
 
             try:
                 # Launch process in a detached mode

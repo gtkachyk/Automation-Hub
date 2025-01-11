@@ -2,12 +2,13 @@ import os
 import csv
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
-from utils import listbox_clicked_dead_space, get_setting
+from utils import listbox_clicked_dead_space, get_setting, normalize_path, detect_shell
 
 class ShellsWindow:
-    def __init__(self, root, shells_file, file_display_file, chains_dir):
+    def __init__(self, root, shells_file, detected_identities_file, file_display_file, chains_dir):
         self.root = root
         self.shells_file = shells_file
+        self.detected_identities_file = detected_identities_file
         self.file_display_file = file_display_file
         self.chains_dir = chains_dir
 
@@ -74,7 +75,11 @@ class ShellsWindow:
             try:
                 with open(self.shells_file, "a", newline="") as f:
                     writer = csv.writer(f)
-                    writer.writerow([filepath])
+                    writer.writerow([normalize_path(filepath)])
+                with open(self.detected_identities_file, "a", newline="") as f:
+                    writer = csv.writer(f)
+                    writer.writerow([detect_shell(normalize_path(filepath))])
+
                 self.load_shells()
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to add shell: {e}")
