@@ -6,10 +6,10 @@ import subprocess
 from settings_window import SettingsWindow
 from shells_window import ShellsWindow
 from edit_chain_window import EditChainWindow
-from utils import FILE_DISPLAY_FILE, SHELLS_FILE, DETECTED_IDENTITIES_FILE, CHAINS_DIR, listbox_clicked_dead_space, get_detected_identity, setup_application_files
+from utils import FILE_DISPLAY_FILE, EXIT_AFTER_EXECUTION_FILE, SHELLS_FILE, DETECTED_IDENTITIES_FILE, CHAINS_DIR, listbox_clicked_dead_space, get_detected_identity, setup_application_files, get_setting
 
 def open_settings_window():
-    SettingsWindow(root, FILE_DISPLAY_FILE)
+    SettingsWindow(root, FILE_DISPLAY_FILE, EXIT_AFTER_EXECUTION_FILE)
 
 def open_shells_window():
     ShellsWindow(root, SHELLS_FILE, DETECTED_IDENTITIES_FILE, FILE_DISPLAY_FILE, CHAINS_DIR)
@@ -67,6 +67,7 @@ def execute_chain():
         messagebox.showwarning("Warning", "No chain selected to execute.")
         return
 
+    exit_after_execution_setting = get_setting(EXIT_AFTER_EXECUTION_FILE)
     chain_name = chain_listbox.get(selected_indices[0])
     chain_file = os.path.join(CHAINS_DIR, f"{chain_name}.csv")
 
@@ -106,12 +107,21 @@ def execute_chain():
                     start_new_session=True,
                 )
             except Exception as e:
+                if exit_after_execution_setting == "Always" or exit_after_execution_setting == "After failure only":
+                    root.destroy()
+                    return
                 messagebox.showerror("Error", f"Error executing '{script}': {e}")
                 return
 
+        if exit_after_execution_setting == "Always" or exit_after_execution_setting == "After success only":
+            root.destroy()
+            return
         messagebox.showinfo("Success", f"Chain '{chain_name}' executed successfully.")
 
     except Exception as e:
+        if exit_after_execution_setting == "Always" or exit_after_execution_setting == "After failure only":
+            root.destroy()
+            return
         messagebox.showerror("Error", f"Failed to execute chain '{chain_name}': {e}")
 
 def main_window_on_link_select(event):

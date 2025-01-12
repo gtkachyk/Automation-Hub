@@ -2,6 +2,7 @@ from tkinter import messagebox
 import tkinter as tk
 import os
 import subprocess
+import csv
 
 # Constants
 CHAINS_DIR = "Chains"
@@ -10,10 +11,29 @@ ICON_TASKBAR_FILE = "Resources/icon_taskbar.ico"
 ICON_WINDOW_FILE = "Resources/icon_window.ico"
 SETTINGS_DIR = "Settings"
 FILE_DISPLAY_FILE = "Settings/file_display.csv"
+EXIT_AFTER_EXECUTION_FILE = "Settings/exit_after_execution.csv"
 SHELLS_DIR = "Shells"
 DETECTED_IDENTITIES_FILE = "Shells/detected_identities.csv"
 SHELLS_FILE = "Shells/shells.csv"
 LISTBOX_ITEM_HEIGHT = 16
+
+def load_dropdown(dropdown, file, var, options):
+    """Load file display options into the dropdown menu."""
+    try:
+        with open(file, "r") as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if row:
+                    options.append(row[0])
+
+        # Set the dropdown values and the default value
+        dropdown["values"] = options[3:]
+        if options:
+            var.set(options[1])
+    except Exception as e:
+        messagebox.showerror(
+            "Error", f"Failed to load dropdown options: {e}"
+        )
 
 def setup_application_files():
     confirm_dir_existence(CHAINS_DIR)
@@ -22,6 +42,7 @@ def setup_application_files():
     confirm_file_existence(ICON_WINDOW_FILE)
     confirm_dir_existence(SETTINGS_DIR)
     confirm_file_existence(FILE_DISPLAY_FILE)
+    confirm_file_existence(EXIT_AFTER_EXECUTION_FILE)
     confirm_dir_existence(SHELLS_DIR)
     confirm_file_existence(DETECTED_IDENTITIES_FILE)
     confirm_file_existence(SHELLS_FILE)
