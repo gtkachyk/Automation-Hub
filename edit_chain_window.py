@@ -13,16 +13,15 @@ class EditChainWindow:
         self.shells_file = shells_file
         self.file_display_file = file_display_file
         self.chain_name = chain_name
+        self.file_display_setting = get_setting(self.file_display_file)
 
-        self.shells = []
-        self.shells_alias = []
-        self.shells_alias_map = {}
+        self.shells = [] # A list of all the user's shells, loaded in when the window opens.
+        self.displayed_shells = []
         self.chain_links = []
 
-        self.selected_shell = StringVar()
-        self.selected_shell_alias = StringVar()
-        self.selected_script = StringVar()
-        self.selected_script_alias = StringVar()
+        self.selected_script = StringVar() # The stored value of the selected script
+        self.selected_shell_alias = StringVar() # The display value of the selected shell. The stored value is accessed by index in the shells list
+        self.selected_script_alias = StringVar() # The display value of the selected script
 
         self._create_window()
 
@@ -69,7 +68,6 @@ class EditChainWindow:
         )
         self.shell_dropdown.pack(side=tk.LEFT, padx=5)
         self.shell_dropdown.bind("<FocusIn>", prevent_focus)
-        self.shell_dropdown.bind("<<ComboboxSelected>>", self._on_combo_select)
 
         # Select script
         script_frame = tk.Frame(self.edit_chain_window)
@@ -114,18 +112,11 @@ class EditChainWindow:
             with open(self.shells_file, "r") as f:
                 reader = csv.reader(f)
                 self.shells.clear()
-                self.shells_alias.clear()
                 for row in reader:
                     if row:
                         self.shells.append(row[0])
-                        for r in row:
-                            self.shells_alias.append(os.path.basename(r))
-                            self.shells_alias_map[os.path.basename(r)] = r
-                file_display_setting = get_setting(self.file_display_file)
-                if file_display_setting == "Full path":
-                    self.shell_dropdown['values'] = self.shells
-                elif file_display_setting == "File name only":
-                    self.shell_dropdown['values'] = self.shells_alias
+                self.displayed_shells = self.get_display_strings(self.shells)
+                self.shell_dropdown['values'] = self.displayed_shells
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load shells: {e}")
 
@@ -148,18 +139,15 @@ class EditChainWindow:
         """Open a file dialog to select a script and update the display."""
         filepath = filedialog.askopenfilename(title="Select Shell Script")
         if filepath:
-            file_display_setting = get_setting(self.file_display_file)
             self.selected_script.set(filepath)
-            if file_display_setting == "Full path": self.selected_script_alias.set(filepath)
-            elif file_display_setting == "File name only": self.selected_script_alias.set(os.path.basename(filepath))
+            self.selected_script_alias.set(self.get_display_string(filepath))
+
+            # Enable the add link button if a shell is also selected
             if self.selected_shell_alias.get(): self.add_link_button.config(state="normal")
 
     def _add_chain_link(self):
         """Add a new chain link."""
-        shell = None
-        file_display_setting = get_setting(self.file_display_file)
-        if file_display_setting == "Full path": shell = self.selected_shell_alias.get()
-        elif file_display_setting == "File name only": shell = self.shells_alias_map[self.selected_shell_alias.get()]
+        shell = self.shells[self.shell_dropdown.current()]
         script = self.selected_script.get()
         if not shell or not script:
             messagebox.showwarning("Warning", "Please select a shell and script.")
@@ -192,7 +180,7 @@ class EditChainWindow:
             return
 
         index = selected_index[0]
-        shell = self.selected_shell.get()
+        shell = self.shells[self.shell_dropdown.current()]
         script = self.selected_script.get()
 
         if not shell or not script:
@@ -220,24 +208,14 @@ class EditChainWindow:
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save chain: {e}")
 
-    def _on_combo_select(self, event):
-        """Handle shell selection in the dropdown."""
-        if self.selected_script_alias.get(): self.add_link_button.config(state="normal")
-
     def _on_link_selection(self, event):
         """Populate shell and script fields when a link is selected."""
         try:
             selected_index = self.link_listbox.curselection()[0]
             selected_link = self.chain_links[selected_index]
-            file_display_setting = get_setting(self.file_display_file)
-            self.selected_shell.set(selected_link[0])
             self.selected_script.set(selected_link[1])
-            if file_display_setting == "Full path":
-                self.selected_shell_alias.set(selected_link[0])
-                self.selected_script_alias.set(selected_link[1])
-            elif file_display_setting == "File name only":
-                self.selected_shell_alias.set(os.path.basename(selected_link[0]))
-                self.selected_script_alias.set(os.path.basename(selected_link[1]))
+            self.selected_shell_alias.set(self.get_display_string(selected_link[0]))
+            self.selected_script_alias.set(self.get_display_string(selected_link[1]))
 
             # Enable the delete and overwrite button if a selection is made
             self.add_link_button.config(state="normal")
@@ -262,3 +240,20 @@ class EditChainWindow:
                 self._on_link_selection(event)
         if widget != self.link_listbox and widget != self.chain_name_entry and widget != self.shell_dropdown and widget != self.select_script_button and widget != self.add_link_button and widget != self.delete_link_button and widget != self.overwrite_selected_link_button:
             self._on_deselect_link()
+    
+    def get_display_string(self, path):
+        if self.file_display_setting == "Full path":
+            return path
+        elif self.file_display_setting == "File name only":
+            return os.path.basename(path)
+    
+    def get_display_strings(self, paths):
+        
+        if self.file_display_setting == "Full path":
+            output = paths
+            return output
+        elif self.file_display_setting == "File name only":
+            output = []
+            for i in range(0, len(paths)):
+                output.append(os.path.basename(paths[i]))
+            return output
