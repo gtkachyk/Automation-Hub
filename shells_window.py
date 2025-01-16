@@ -2,7 +2,8 @@ import os
 import csv
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
-from utils import listbox_clicked_dead_space, get_setting, normalize_path, detect_shell
+from edit_shell_window import EditShellWindow
+from utils import listbox_clicked_dead_space, get_setting, normalize_path, detect_shell, get_shell_by_index, get_shell_name_by_index, SHELL_OPTIONS_FILE
 
 class ShellsWindow:
     def __init__(self, root, shells_file, detected_identities_file, file_display_file, chains_dir):
@@ -48,6 +49,10 @@ class ShellsWindow:
         self.add_shell_button = tk.Button(shell_button_frame, text="Add Shell", command=self.add_shell)
         self.add_shell_button.pack(side=tk.LEFT, padx=5)
 
+        self.edit_shell_button = tk.Button(shell_button_frame, text="Edit Options", command=self.open_edit_shell_window)
+        self.edit_shell_button.pack(side=tk.LEFT, padx=5)
+        self.edit_shell_button.config(state="disabled")
+
         self.remove_shell_button = tk.Button(shell_button_frame, text="Remove Selected", command=self.remove_selected_shell)
         self.remove_shell_button.pack(side=tk.LEFT, padx=5)
         self.remove_shell_button.config(state="disabled")
@@ -84,6 +89,9 @@ class ShellsWindow:
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to add shell: {e}")
 
+    def open_edit_shell_window(self):
+        EditShellWindow(self.root, get_shell_by_index(self.shell_listbox.curselection()[0]).rstrip(), get_shell_name_by_index(self.shell_listbox.curselection()[0]).rstrip(), self.shell_listbox.curselection()[0])
+
     def remove_selected_shell(self):
         """Remove the selected shell from the list."""
         selected_indices = self.shell_listbox.curselection()
@@ -104,7 +112,7 @@ class ShellsWindow:
                     writer.writerows(remaining_rows)
 
                 # Remove all links that use the selected shell from all chains
-                selected_shells = {rows[i][0] for i in selected_indices}  # Get selected shell names
+                selected_shells = {rows[i][0] for i in selected_indices} # Get selected shell names
                 for chain_file in os.listdir(self.chains_dir):
                     chain_path = os.path.join(self.chains_dir, chain_file)
                     if os.path.isfile(chain_path) and chain_file.endswith(".csv"):
@@ -118,6 +126,7 @@ class ShellsWindow:
                 # Reload shells and reset the button state
                 self.load_shells()
                 self.remove_shell_button.config(state="disabled")
+                self.edit_shell_button.config(state="disabled")
 
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to remove shell: {e}")
@@ -130,15 +139,17 @@ class ShellsWindow:
                 self.deselect_shell()
             else:
                 self.on_shell_select(event)
-        if widget != self.shell_listbox and widget != self.remove_shell_button:
+        if widget != self.shell_listbox and widget != self.remove_shell_button and widget != self.edit_shell_button:
             self.deselect_shell()
 
     def deselect_shell(self):
         """Deselect the currently selected shell."""
         self.shell_listbox.selection_clear(0, tk.END)
         self.remove_shell_button.config(state="disabled")
+        self.edit_shell_button.config(state="disabled")
     
     def on_shell_select(self, event):
         """Handel shell_listbox item selection."""
         # Enable buttons if a selection is made
         self.remove_shell_button.config(state="normal")
+        self.edit_shell_button.config(state="normal")

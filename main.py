@@ -6,7 +6,7 @@ import subprocess
 from settings_window import SettingsWindow
 from shells_window import ShellsWindow
 from edit_chain_window import EditChainWindow
-from utils import FILE_DISPLAY_FILE, EXIT_AFTER_EXECUTION_FILE, SHELLS_FILE, DETECTED_IDENTITIES_FILE, CHAINS_DIR, listbox_clicked_dead_space, get_detected_identity, setup_application_files, get_setting
+from utils import FILE_DISPLAY_FILE, EXIT_AFTER_EXECUTION_FILE, SHELLS_FILE, DETECTED_IDENTITIES_FILE, CHAINS_DIR, listbox_clicked_dead_space, setup_application_files, get_setting, get_shell_options
 
 def open_settings_window():
     SettingsWindow(root, FILE_DISPLAY_FILE, EXIT_AFTER_EXECUTION_FILE)
@@ -90,13 +90,12 @@ def execute_chain():
             # Ensure the script runs in its directory
             script_dir = os.path.dirname(script)
 
-            # Build command based on the detected shell identity
+            # Build command
+            shell_options = get_shell_options(shell)
             command = [shell]
-            if get_detected_identity(shell) == "Command Prompt": 
-                command.append('/C')
-            if "PowerShell 7" in get_detected_identity(shell):
-                command.append('-File')
+            if shell_options[1] != "": command.append(shell_options[1])
             command.append(script)
+            if shell_options[3] != "": command.append(shell_options[3])
 
             try:
                 # Launch process in a detached mode

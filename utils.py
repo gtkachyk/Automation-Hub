@@ -14,6 +14,7 @@ FILE_DISPLAY_FILE = "Settings/file_display.csv"
 EXIT_AFTER_EXECUTION_FILE = "Settings/exit_after_execution.csv"
 SHELLS_DIR = "Shells"
 DETECTED_IDENTITIES_FILE = "Shells/detected_identities.csv"
+SHELL_OPTIONS_FILE = "Shells/shell_options.csv"
 SHELLS_FILE = "Shells/shells.csv"
 LISTBOX_ITEM_HEIGHT = 16
 
@@ -45,6 +46,7 @@ def setup_application_files():
     confirm_file_existence(EXIT_AFTER_EXECUTION_FILE)
     confirm_dir_existence(SHELLS_DIR)
     confirm_file_existence(DETECTED_IDENTITIES_FILE)
+    confirm_file_existence(SHELL_OPTIONS_FILE)
     confirm_file_existence(SHELLS_FILE)
 
 def confirm_dir_existence(dir):
@@ -179,11 +181,11 @@ def get_setting(filename):
         with open(filename, "r") as file:
             lines = file.readlines()
             if len(lines) >= 2:
-                return lines[1].strip()  # Strip any leading/trailing whitespace or newline
+                return lines[1].strip() # Strip any leading/trailing whitespace or newline
             else:
-                return None  # Return None if the file has fewer than 2 lines
+                return None # Return None if the file has fewer than 2 lines
     except FileNotFoundError:
-        return None  # Return None if the file doesn't exist
+        return None # Return None if the file doesn't exist
     except Exception as e:
         messagebox.showerror("Error", f"Failed to read setting from {filename}: {e}")
         return None
@@ -198,3 +200,20 @@ def listbox_clicked_dead_space(event):
         if event.y > bbox[1] + LISTBOX_ITEM_HEIGHT:
             return True
     return False
+
+def get_shell_by_index(index):
+    with open(SHELLS_FILE) as f:
+        return f.readlines()[index]
+
+def get_shell_name_by_index(index):
+    with open(DETECTED_IDENTITIES_FILE) as f:
+        return f.readlines()[index].rstrip()
+
+def get_shell_options(shell):
+    with open(SHELL_OPTIONS_FILE) as f:
+        lines = f.readlines()
+        for line in lines:
+            options = line.split(",")
+            if options[0] == shell:
+                return options
+    raise Exception("Error: could not find shell options for shell: " + str(shell))
