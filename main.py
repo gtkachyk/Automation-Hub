@@ -94,6 +94,8 @@ def execute_chain():
             command = [shell]
             if get_detected_identity(shell) == "Command Prompt": 
                 command.append('/C')
+            if "PowerShell 7" in get_detected_identity(shell):
+                command.append('-File')
             command.append(script)
 
             try:

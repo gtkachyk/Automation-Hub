@@ -84,7 +84,7 @@ def detect_shell(executable_path: str) -> str:
     shell = identify_shell_by_path(executable_path)
     if shell == "Unknown Shell":
         version_info = get_shell_version(executable_path)
-        return f"Detected shell by output: {version_info}"
+        return f"{version_info}"
     return shell
 
 def get_shell_version(executable_path: str) -> str:
