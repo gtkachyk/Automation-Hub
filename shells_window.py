@@ -3,7 +3,7 @@ import csv
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from edit_shell_window import EditShellWindow
-from utils import listbox_clicked_dead_space, get_setting, normalize_path, detect_shell, get_shell_by_index, get_shell_name_by_index, SHELL_OPTIONS_FILE
+from utils import listbox_clicked_dead_space, get_setting, normalize_path, detect_shell, get_shell_by_index, get_shell_identity_by_index
 
 class ShellsWindow:
     def __init__(self, root, shells_file, detected_identities_file, file_display_file, chains_dir):
@@ -90,7 +90,7 @@ class ShellsWindow:
                 messagebox.showerror("Error", f"Failed to add shell: {e}")
 
     def open_edit_shell_window(self):
-        EditShellWindow(self.root, get_shell_by_index(self.shell_listbox.curselection()[0]).rstrip(), get_shell_name_by_index(self.shell_listbox.curselection()[0]).rstrip(), self.shell_listbox.curselection()[0])
+        EditShellWindow(self.root, get_shell_by_index(self.shell_listbox.curselection()[0]).rstrip(), get_shell_identity_by_index(self.shell_listbox.curselection()[0]).rstrip(), self.shell_listbox.curselection()[0])
 
     def remove_selected_shell(self):
         """Remove the selected shell from the list."""

@@ -6,13 +6,13 @@ import subprocess
 from settings_window import SettingsWindow
 from shells_window import ShellsWindow
 from edit_chain_window import EditChainWindow
-from utils import FILE_DISPLAY_FILE, EXIT_AFTER_EXECUTION_FILE, SHELLS_FILE, DETECTED_IDENTITIES_FILE, CHAINS_DIR, listbox_clicked_dead_space, setup_application_files, get_setting, get_shell_options
+from utils import FILE_DISPLAY_FILE, EXIT_AFTER_EXECUTION_FILE, SHELLS_FILE, IDENTITIES_FILE, CHAINS_DIR, listbox_clicked_dead_space, setup_application_files, get_setting, get_shell_options, validate_state
 
 def open_settings_window():
     SettingsWindow(root, FILE_DISPLAY_FILE, EXIT_AFTER_EXECUTION_FILE)
 
 def open_shells_window():
-    ShellsWindow(root, SHELLS_FILE, DETECTED_IDENTITIES_FILE, FILE_DISPLAY_FILE, CHAINS_DIR)
+    ShellsWindow(root, SHELLS_FILE, IDENTITIES_FILE, FILE_DISPLAY_FILE, CHAINS_DIR)
 
 def open_edit_chain_window(chain_name=None):
     EditChainWindow(
@@ -210,5 +210,11 @@ if __name__ == "__main__":
     delete_button.config(state=tk.DISABLED)
     execute_button.config(state=tk.DISABLED)
     
+    # Validate the application state
+    try:
+        validate_state()
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred while attempting to validate the application state. Some features may not work as intended. Error: {e}")
+
     # Run the application
     root.mainloop()

@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import Toplevel, messagebox, filedialog, ttk, StringVar
 import os
 import csv
-from utils import listbox_clicked_dead_space, get_setting, prevent_focus
+from utils import listbox_clicked_dead_space, get_setting, prevent_focus, normalize_path
 
 class EditChainWindow:
     def __init__(self, root, chain_listbox, load_chains, chains_dir, shells_file, file_display_file, chain_name=None):
@@ -148,7 +148,7 @@ class EditChainWindow:
     def _add_chain_link(self):
         """Add a new chain link."""
         shell = self.shells[self.shell_dropdown.current()]
-        script = self.selected_script.get()
+        script = normalize_path(self.selected_script.get())
         if not shell or not script:
             messagebox.showwarning("Warning", "Please select a shell and script.")
             return
@@ -181,7 +181,7 @@ class EditChainWindow:
 
         index = selected_index[0]
         shell = self.shells[self.shell_dropdown.current()]
-        script = self.selected_script.get()
+        script = normalize_path(self.selected_script.get())
 
         if not shell or not script:
             messagebox.showwarning("Warning", "Please select both a shell and a script.")
@@ -248,7 +248,6 @@ class EditChainWindow:
             return os.path.basename(path)
     
     def get_display_strings(self, paths):
-        
         if self.file_display_setting == "Full path":
             output = paths
             return output

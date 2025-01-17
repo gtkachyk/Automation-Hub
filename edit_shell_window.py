@@ -1,14 +1,14 @@
 import tkinter as tk
 from tkinter import Toplevel, messagebox, ttk
-from utils import detect_shell, normalize_path, get_shell_options, DETECTED_IDENTITIES_FILE, SHELL_OPTIONS_FILE
+from utils import detect_shell, normalize_path, get_shell_options, IDENTITIES_FILE, SHELL_OPTIONS_FILE
 
 class EditShellWindow:
     """A class to encapsulate the edit shell window logic."""
 
-    def __init__(self, root, selected_shell, selected_shell_name, shell_index):
+    def __init__(self, root, selected_shell, selected_shell_identity, shell_index):
         self.root = root
         self.selected_shell = selected_shell
-        self.selected_shell_name = selected_shell_name
+        self.selected_shell_identity = selected_shell_identity
         self.shell_index = shell_index
         self.shell_options = get_shell_options(self.selected_shell)
         self.create_window()
@@ -30,14 +30,14 @@ class EditShellWindow:
         label_width = 8
         pady = 15
 
-        # Shell name
-        shell_name_frame = tk.Frame(self.edit_shell_window)
-        shell_name_frame.grid(row=0, column=0, sticky="nw", padx=5, pady=5)
-        ttk.Label(shell_name_frame, text="Name:", width=label_width).grid(row=0, column=0, padx=5, pady=pady, sticky="w")
-        self.shell_name_entry = tk.Entry(shell_name_frame)
-        self.shell_name_entry.grid(row=0, column=1, sticky="w", padx=5, pady=5)
-        self.shell_name_entry.insert(0, self.selected_shell_name)
-        ttk.Button(shell_name_frame, text="Auto Detect", command=self.run_auto_detect).grid(row=0, column=2)
+        # Shell identity
+        shell_identity_frame = tk.Frame(self.edit_shell_window)
+        shell_identity_frame.grid(row=0, column=0, sticky="nw", padx=5, pady=5)
+        ttk.Label(shell_identity_frame, text="Identity:", width=label_width).grid(row=0, column=0, padx=5, pady=pady, sticky="w")
+        self.shell_identity_entry = tk.Entry(shell_identity_frame)
+        self.shell_identity_entry.grid(row=0, column=1, sticky="w", padx=5, pady=5)
+        self.shell_identity_entry.insert(0, self.selected_shell_identity)
+        ttk.Button(shell_identity_frame, text="Auto Detect", command=self.run_auto_detect).grid(row=0, column=2)
 
         # Command
         command_frame = tk.Frame(self.edit_shell_window)
@@ -72,13 +72,13 @@ class EditShellWindow:
         self.edit_shell_window.destroy()
 
     def save_shell_options(self):
-        # Save name
-        with open(DETECTED_IDENTITIES_FILE, "r") as f:
+        # Save identity
+        with open(IDENTITIES_FILE, "r") as f:
             lines = f.readlines()
 
-        lines[self.shell_index] = self.shell_name_entry.get() + "\n"
+        lines[self.shell_index] = self.selected_shell + "," + self.shell_identity_entry.get() + "\n"
 
-        with open(DETECTED_IDENTITIES_FILE, "w") as f:
+        with open(IDENTITIES_FILE, "w") as f:
             f.writelines(lines)
 
         # Save command
@@ -98,5 +98,5 @@ class EditShellWindow:
         self.edit_shell_window.destroy()
 
     def run_auto_detect(self):
-        self.shell_name_entry.delete(0, tk.END)
-        self.shell_name_entry.insert(0, detect_shell(normalize_path(self.selected_shell)))
+        self.shell_identity_entry.delete(0, tk.END)
+        self.shell_identity_entry.insert(0, detect_shell(normalize_path(self.selected_shell)))
