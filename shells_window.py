@@ -3,13 +3,13 @@ import csv
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from edit_shell_window import EditShellWindow
-from utils import listbox_clicked_dead_space, get_setting, normalize_path, detect_shell, get_shell_by_index, get_shell_identity_by_index
+from utils import listbox_clicked_dead_space, get_setting, normalize_path, detect_shell, get_shell_by_index, get_shell_identity_by_index, SHELL_OPTIONS_FILE, SCRIPT_PLACEHOLDER, delete_file_row
 
 class ShellsWindow:
-    def __init__(self, root, shells_file, detected_identities_file, file_display_file, chains_dir):
+    def __init__(self, root, shells_file, identities_file, file_display_file, chains_dir):
         self.root = root
         self.shells_file = shells_file
-        self.detected_identities_file = detected_identities_file
+        self.identities_file = identities_file
         self.file_display_file = file_display_file
         self.chains_dir = chains_dir
 
@@ -78,12 +78,16 @@ class ShellsWindow:
         filepath = filedialog.askopenfilename(title="Select Shell Program")
         if filepath:
             try:
+                normalized_path = normalize_path(filepath)
                 with open(self.shells_file, "a", newline="") as f:
                     writer = csv.writer(f)
-                    writer.writerow([normalize_path(filepath)])
-                with open(self.detected_identities_file, "a", newline="") as f:
+                    writer.writerow([normalized_path])
+                with open(self.identities_file, "a", newline="") as f:
                     writer = csv.writer(f)
-                    writer.writerow([detect_shell(normalize_path(filepath))])
+                    writer.writerow([normalized_path, detect_shell(normalized_path)])
+                with open(SHELL_OPTIONS_FILE, "a", newline="") as f:
+                    writer = csv.writer(f)
+                    writer.writerow([normalized_path, "", SCRIPT_PLACEHOLDER, ""])
 
                 self.load_shells()
             except Exception as e:
@@ -110,6 +114,9 @@ class ShellsWindow:
                 with open(self.shells_file, "w", newline="") as f:
                     writer = csv.writer(f)
                     writer.writerows(remaining_rows)
+                
+                delete_file_row(self.identities_file, selected_indices)
+                delete_file_row(SHELL_OPTIONS_FILE, selected_indices)
 
                 # Remove all links that use the selected shell from all chains
                 selected_shells = {rows[i][0] for i in selected_indices} # Get selected shell names

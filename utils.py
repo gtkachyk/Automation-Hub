@@ -29,6 +29,14 @@ LISTBOX_ITEM_HEIGHT = 16
 DELIMITER = ","
 SCRIPT_PLACEHOLDER = "<your-script>"
 
+def delete_file_row(file, index):
+    with open(file, "r") as f:
+        rows = list(csv.reader(f))
+    remaining_rows = [row for i, row in enumerate(rows) if i not in index]
+    with open(file, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerows(remaining_rows)
+
 def load_dropdown(dropdown, file, var, options):
     """Load file display options into the dropdown menu."""
     try:
